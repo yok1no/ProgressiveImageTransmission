@@ -84,7 +84,7 @@ class ProgressiveTransmission:
         block_size = len(compressed_data)
         
         efficiency = compressed_size / original_size
-        self.efficiency_list.append(efficiency)
+        self.efficiency_list.append(1 - efficiency)
 
         if block_size > self.bandwidth:
             raise ValueError(f"Block size ({block_size} bytes) exceeds bandwidth ({self.bandwidth} bytes).")
@@ -120,15 +120,15 @@ class ProgressiveTransmission:
 
         # 绘制编码效率的折线图
         plt.figure(figsize=(10, 6))
-        plt.plot(self.efficiency_list, marker='o', linestyle='-', color='b', label="编码效率")
+        plt.plot(self.efficiency_list, marker='o', linestyle='-', color='b', label="压缩率")
         plt.xlabel("传输块")
-        plt.ylabel("编码效率")
-        plt.title("编码效率折线图")
+        plt.ylabel("压缩率")
+        plt.title("压缩率")
         plt.grid(True)
         
         # 计算平均编码效率
         average_efficiency = sum(self.efficiency_list) / len(self.efficiency_list)
-        plt.axhline(y=average_efficiency, color='r', linestyle='--', label=f"平均编码效率: {average_efficiency:.4f}")
+        plt.axhline(y=average_efficiency, color='r', linestyle='--', label=f"平均压缩率: {average_efficiency:.4f}")
         plt.legend()
         
         encode_efficiency_dir = os.path.join(encode_efficiency_dir, "coding_efficiency.jpg")
