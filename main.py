@@ -8,6 +8,12 @@ import matplotlib.pyplot as plt
 def parse_args():
     parser = argparse.ArgumentParser(description="parameter list of Progressive transmission system")
     parser.add_argument(
+        "--encode_efficiency_dir",
+        type=str,
+        default="data/result/encode_efficiency.png",
+        help="the address to save the encode efficiency image"
+    )
+    parser.add_argument(
         "--input_image",
         type=str,
         default="data/input/4.jpg",
@@ -22,8 +28,15 @@ def parse_args():
     parser.add_argument(
         "--level",
         type=int,
-        default=1,
+        default=5,
         help="the level of wavelet"
+    )
+    parser.add_argument(
+        "--quality",
+        type=str,
+        choices=["rates", "dB"], 
+        default="dB",
+        help="the quality of encode, choose between 'rates' or 'dB'"
     )
     parser.add_argument(
         "--band_width",
@@ -45,7 +58,7 @@ if __name__ == '__main__':
     # 执行小波变换
     coeffs, block_size = transformer.wavelet_transform()
 
-    transmission = ProgressiveTransmission(coeffs, args.level, args.band_width)
+    transmission = ProgressiveTransmission(coeffs, args.level, args.band_width, args.quality)
     reconstruction = ImageReconstruction(image_shape, block_size, args.level, args.wavelet)
 
     while True:
@@ -54,7 +67,9 @@ if __name__ == '__main__':
             break
         level, block_type, restored_data = transmission.decode_received_data(encoded_block)
         reconstruction.add_received_block(level, block_type, restored_data)
-    plt.pause(2) 
+    plt.pause(2)
+
+    transmission.plot_efficiency(args.encode_efficiency_dir)
         
 
 

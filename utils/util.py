@@ -2,7 +2,7 @@ import numpy as np
 import imageio
 import tempfile
 
-def encode_block(block, quality=50):
+def encode_block(block, quality_mode="dB"):
     """
     使用 imageio 对数据块进行 JPEG2000 压缩。
     """
@@ -10,7 +10,7 @@ def encode_block(block, quality=50):
     normalized_block = ((block - block_min) / (block_max - block_min) * 65535).astype(np.uint16)
 
     with tempfile.NamedTemporaryFile(suffix=".jp2", delete=False) as temp_file:
-        imageio.imwrite(temp_file.name, normalized_block, format="JP2")
+        imageio.imwrite(temp_file.name, normalized_block, format="JP2", quality_mode=quality_mode)
         with open(temp_file.name, "rb") as f:
             compressed_data = f.read()
 
