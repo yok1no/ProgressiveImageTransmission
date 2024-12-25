@@ -1,9 +1,10 @@
+import os
 import numpy as np
 import pywt  # 小波变换库，用于反变换
 import matplotlib.pyplot as plt
 
 class ImageReconstruction:
-    def __init__(self, image_shape, block_size, level = 3, wavelet="db2"):
+    def __init__(self, origin_image, block_size, level = 3, wavelet="db2"):
         """
         图像重建类，逐步重建图像。
         
@@ -11,7 +12,8 @@ class ImageReconstruction:
         :param wavelet: 小波基类型，默认为 'db2'
         :param block_size: 分块大小
         """
-        self.image_shape = image_shape
+        self.origin_image = np.float32(origin_image)
+        self.image_shape = origin_image.shape
         self.wavelet = wavelet
         self.level = level
         self.block_size = block_size
@@ -19,6 +21,7 @@ class ImageReconstruction:
         self.coeffs = [np.zeros((4 * block_size[i][0], 4 * block_size[i][1])) for i in range(level)]
         self.figure = None
         self.ax = None
+        self.mse_losses = []
         
 
     def add_received_block(self, level, block_type, block_data):
@@ -52,6 +55,10 @@ class ImageReconstruction:
 
         # 重建当前图像
         reconstructed_image = self.reconstruct_image()
+
+        mse = self.calculate_mse(self.origin_image, reconstructed_image)
+        self.mse_losses.append(mse)  # 保存 MSE 损失
+
         self.ax.clear()
         self.ax.imshow(reconstructed_image, cmap="gray")
         self.ax.set_title("Progressive Image Reconstruction")
@@ -97,3 +104,24 @@ class ImageReconstruction:
         else:
             return image[0:self.block_size[level][0], 0:self.block_size[level][1]]
     
+    def calculate_mse(self, original_image, reconstructed_image):
+        """
+        计算原图与重建图像之间的均方误差（MSE）损失。
+        """
+        return np.mean((original_image - reconstructed_image) ** 2)
+    
+    def plot_loss(self, mes_losses_dir):
+        """
+        绘制 MSE 损失的折线图，并保存。
+        """
+        # 绘制损失曲线
+        plt.figure(figsize=(10, 6))
+        plt.plot(self.mse_losses, marker='o', linestyle='-', color='b', label="MSE Loss")
+        plt.xlabel("Reconstruction Step")
+        plt.ylabel("MSE Loss")
+        plt.title("MSE Loss Curve during Image Reconstruction")
+        plt.grid(True)
+        
+        mes_losses_dir = os.path.join(mes_losses_dir, "loss_curve.png")
+        plt.savefig(mes_losses_dir)
+        plt.close()  # 关闭当前图像，避免图像累积

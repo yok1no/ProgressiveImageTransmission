@@ -1,4 +1,4 @@
-import numpy as np
+import os
 from utils.util import encode_block, decode_block
 import matplotlib.pyplot as plt
 from matplotlib import rcParams
@@ -107,6 +107,7 @@ class ProgressiveTransmission:
         plt.axhline(y=average_efficiency, color='r', linestyle='--', label=f"average efficiency: {average_efficiency:.4f}")
         plt.legend()
         
+        encode_efficiency_dir = os.path.join(encode_efficiency_dir, "coding_efficiency.jpg")
         # 保存图像
         plt.savefig(encode_efficiency_dir)
         plt.close()
