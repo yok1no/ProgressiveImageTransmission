@@ -84,7 +84,7 @@ class ProgressiveTransmission:
         block_size = len(compressed_data)
         
         efficiency = compressed_size / original_size
-        self.efficiency_list.append(1 - efficiency)
+        self.efficiency_list.append(efficiency)
 
         if block_size > self.bandwidth:
             raise ValueError(f"Block size ({block_size} bytes) exceeds bandwidth ({self.bandwidth} bytes).")
